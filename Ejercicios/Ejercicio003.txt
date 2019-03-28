@@ -1,0 +1,51 @@
+gc <- read.csv("C:/Users/Nelson/Desktop/Curso Machine Learning/AFPCrecer/CursoEstudio/KNN/Ejercicios/german_credit.csv") # reading csv data files from defined directory as file has already downloaded and stored in the directory
+
+## Taking back-up of the input file, in case the original data is required later
+gc.bkup <- gc
+head (gc) # To check top 6 values of all the variables in data set.
+str(gc) 
+gc.subset <- gc[c('Creditability','Age..years.','Sex...Marital.Status','Occupation','Account.Balance','Credit.Amount','Length.of.current.employment','Purpose')]
+head(gc.subset)
+normalize <- function(x) {
+return ((x - min(x)) / (max(x) - min(x))) } # creating a normalize function for easy convertion.
+
+gc.subset.n<- as.data.frame(lapply(gc.subset[,2:8], normalize)) # lapply creates list that is why it is converted to dataframe and it applies defined fundtion (which is 'normalize') to all the list values which is here column 2 to 8 as first column is target/response.
+head(gc.subset.n)
+set.seed(123)  # To get the same random sample
+dat.d <- sample(1:nrow(gc.subset.n),size=nrow(gc.subset.n)*0.7,replace = FALSE) #random selection of 70% data.
+
+train.gc <- gc.subset[dat.d,] # 70% training data
+test.gc <- gc.subset[-dat.d,] # remaining 30% test data
+
+#Now creating seperate dataframe for 'Creditability' feature which is our target.
+train.gc_labels <- gc.subset[dat.d,1]
+test.gc_labels  <- gc.subset[-dat.d,1]   
+
+library(class)          # to call class package
+
+NROW(train.gc_labels)   # to find the number of observation
+
+knn.26 <-  knn(train=train.gc, test=test.gc, cl=train.gc_labels, k=26)
+knn.27 <-  knn(train=train.gc, test=test.gc, cl=train.gc_labels, k=27)
+
+ACC.26 <- 100 * sum(test.gc_labels == knn.26)/NROW(test.gc_labels)  # For knn = 26
+ACC.27 <- 100 * sum(test.gc_labels == knn.27)/NROW(test.gc_labels)  # For knn = 27
+ACC.26
+ACC.27
+table(knn.26 ,test.gc_labels)
+table(knn.27 ,test.gc_labels)
+library(caret)
+confusionMatrix(knn.26 ,test.gc_labels)
+confusionMatrix(knn.27 ,test.gc_labels)
+
+i=1                          # declaration to initiate for loop
+k.optm=1                     # declaration to initiate for loop
+for (i in 1:28){ 
+    knn.mod <-  knn(train=train.gc, test=test.gc, cl=train.gc_labels, k=i)
+    k.optm[i] <- 100 * sum(test.gc_labels == knn.mod)/NROW(test.gc_labels)
+    k=i  
+    cat(k,'=',k.optm[i],'\n')       # to print % accuracy 
+}
+
+plot(k.optm, type="b", xlab="K- Value",ylab="Accuracy level") 
+
