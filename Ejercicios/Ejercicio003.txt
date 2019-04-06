@@ -35,8 +35,8 @@ ACC.27
 table(knn.26 ,test.gc_labels)
 table(knn.27 ,test.gc_labels)
 library(caret)
-confusionMatrix(knn.26 ,test.gc_labels)
-confusionMatrix(knn.27 ,test.gc_labels)
+confusionMatrix(knn.26 ,as.factor(test.gc_labels))
+confusionMatrix(knn.27 ,as.factor(test.gc_labels))
 
 i=1                          # declaration to initiate for loop
 k.optm=1                     # declaration to initiate for loop
@@ -48,4 +48,8 @@ for (i in 1:28){
 }
 
 plot(k.optm, type="b", xlab="K- Value",ylab="Accuracy level") 
+
+
+knn.25 <-  knn(train=train.gc, test=test.gc, cl=train.gc_labels, k=25)
+ACC.25 <- 100 * sum(test.gc_labels == knn.25)/NROW(test.gc_labels) 
 

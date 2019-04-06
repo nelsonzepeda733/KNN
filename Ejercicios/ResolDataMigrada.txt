@@ -1,0 +1,92 @@
+ds <- read.csv("C:/Users/Nelson/Desktop/Curso Machine Learning/AFPCrecer/CursoEstudio/KNN/Ejercicios/DataMigracionesCSV_V20190329.csv")
+str(ds)
+ds.bk<-ds
+###########################################################################################
+#
+#Transformaciones basicas, todos los atributos numericos se dejaran expresados como num
+#
+###########################################################################################
+ds$diacontacto<- as.numeric(ds$diacontacto) - 1
+ds$horallamada<- as.numeric(ds$horallamada) - 1
+ds$ciudad<- as.numeric(ds$ciudad) - 1
+ds$estadocivil<- as.numeric(ds$estadocivil) - 1
+ds$genero<- as.numeric(ds$genero) - 1
+ds$areatrabajo<- as.numeric(ds$areatrabajo) - 1
+ds$sector<- as.numeric(ds$sector) - 1
+ds$migradoacrecer<- as.numeric(ds$migradoacrecer) - 1
+ds$edadcliente<- as.numeric(ds$edadcliente)
+ds$llamadas<- as.numeric(ds$llamadas)
+ds$visitas<- as.numeric(ds$visitas)
+ds$cantidadhijos<- as.numeric(ds$cantidadhijos)
+ds$aniostrabajandoempresaactual<- as.numeric(ds$aniostrabajandoempresaactual)
+
+normalize <- function(x) {
+return ((x - min(x)) / (max(x) - min(x))) }
+
+############################################################################################
+#
+#Normalizando a las variables que aplican
+#
+############################################################################################
+ds$edadcliente<- normalize(ds$edadcliente)
+ds$llamadas<- normalize(ds$llamadas)
+ds$visitas<- normalize(ds$visitas)
+ds$ingresos<- normalize(ds$ingresos)
+ds$cantidadhijos<- normalize(ds$cantidadhijos)
+ds$saldoenbancos<- normalize(ds$saldoenbancos)
+rnum<- sample(rep(1:68000))
+ds_trn<-ds[rnum, ]
+ds_tst<-ds[-rnum, ]
+ds_trn_target<-(ds_trn[,15])
+ds_tst_target<-(ds_tst[,15])
+
+
+############################################################################################
+#
+#Construyendo Modelo
+#
+############################################################################################
+
+library(class)
+knn.26 <-  knn(train=ds_trn, test=ds_tst, cl=ds_trn_target, k=26)
+ACC.26 <- 100 * sum(ds_tst_target == knn.26)/NROW(ds_tst_target)  # For knn = 26
+
+table(knn.26 ,ds_tst_target)
+
+library(caret)
+confusionMatrix(knn.26 ,as.factor(ds_tst_target))
+
+
+
+knn.15 <-  knn(train=ds_trn, test=ds_tst, cl=ds_trn_target, k=15)
+ACC.15 <- 100 * sum(ds_tst_target == knn.26)/NROW(ds_tst_target)  # For knn = 15
+
+
+knn.5 <-  knn(train=ds_trn, test=ds_tst, cl=ds_trn_target, k=5)
+ACC.5 <- 100 * sum(ds_tst_target == knn.5)/NROW(ds_tst_target)  # For knn = 5
+
+
+knn.50 <-  knn(train=ds_trn, test=ds_tst, cl=ds_trn_target, k=50)
+ACC.50 <- 100 * sum(ds_tst_target == knn.50)/NROW(ds_tst_target)  # For knn = 50
+
+############################################################################################
+#
+#Evaluando otros K
+#
+############################################################################################
+i=1                          
+k.optm=1                     
+for (i in 1:30){ 
+    knn.mod <-  knn(train=ds_trn, test=ds_tst, cl=ds_trn_target, k=i)
+    k.optm[i] <- 100 * sum(ds_tst_target == knn.26)/NROW(ds_tst_target)
+    k=i  
+    cat(k,'=',k.optm[i],'\n')       # to print % accuracy 
+}
+
+plot(k.optm, type="b", xlab="K- Value",ylab="Accuracy level") 
+
+ install.packages("pmml")
+ library("pmml")
+ 
+ library("randomForest")
+ model1 <- randomForest(migradoacrecer ~ ., data = ds_trn, importance = TRUE)
